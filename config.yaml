@@ -1,0 +1,75 @@
+# this is the configuration file that we will use for the 
+# agent to perform deep research
+profile_to_run: dev_profile
+
+# Here are the common defaults that can be overridden by the profile
+defaults:
+  # the backend to use for this agent model deployment
+  # will be via docker
+  backend: docker
+  # this is the docker image to be used
+  image: vllm/vllm-openai:latest
+  host: 0.0.0.0
+  port: 8000
+  # this is a test request to make sure that the server is up
+  # and running
+  test_request: yes
+  # this is the allow time for the first model to load
+  readiness_timeout: 900
+
+  # This is the test prompt to be used to check if the model is up and running
+  test_prompt: "Hi, what can you help me with today?"
+  test_max_tokens: 32
+
+# Profiles: Here, you can make as many profiles as you want and then use those profiles
+profiles:
+  dev_profile:
+    # this is the model that will be used for the agent
+    model_id: "openai/gpt-oss-20b"
+    # this is the backend that will be used
+    backend: docker
+    # this is the port where the server will be up and running
+    port: 8000
+    # these are the inference parameters that will be used
+    engine:
+      # this is the maximum context length that the engine will allocate KV cache for
+      # 1. Perf/Latency: Higher the KV cache, higher will be the GPU memory consumed, and lower the peak concurrency
+      # and higher the latency. 
+      # 2. Large context window will reduce the throughput that the model will be able to sustain
+      # GPT's context window is 131072 tokens, so we set it to a bit higher value
+      # to accommodate for some extra tokens to get started with
+      max_model_len: 8192
+      # This is the number of GPUs to shard the model across. This is an L-40s machine, which means that there
+      # is only one GPU available
+      tensor_parallel_size: 1
+      # Target fraction of each GPU's memory for vLLM to use (weights + KV cache + activations).
+      # In this case, vLLM will leave the remaining space as a safety margin. For now this GPU utilization contains the model
+      # weights, the KV cache and the runtime workspaces/activations.
+      gpu_memory_utilization: 0.92
+      # these are the batching controls
+      # This is the upper bound of the number of sequences that can be processed in the 
+      # scheduler for vLLM at once
+      # In this, higher the max num seqs, more the throughput but this can raise the latency and memory use
+      max_num_seqs: 256
+      # These are the cap on the total tokens (input + output tokens) that can be used or fused into one step. 
+      max_num_batched_tokens: 8192
+      # other useful toggles (uncomment as needed)
+      # mixed precision
+      # These two (dtype and kv_cache_dtype) are the most important parameters to control the memory use
+      # and the performance of the model.
+      # Dtype: This targets the model weights and attention - it accepts (bf16, fp16, auto)
+      dtype: auto                   # vLLM picks the best supported precision for your GPU (typically bf16 on modern NVIDIA; falls back to fp16 where bf16 isn’t fast/available).
+      # kv_cache_dtype: "fp8"         # or "fp16", "int8", "fp8_e5m2"
+      # shard LoRA adapters across multiple GPUs
+      fully_sharded_loras: true
+      # Enables loading the custom model code from HF
+      trust_remote_code: true
+      # Enables a more responsive asynchronous scheduler in vLLM. Improves handling of bursty traffic, cancellations, and streaming.
+      async_scheduling: true
+      # Enable tool/function calling support
+      enable_auto_tool_choice: true
+      tool_call_parser: hermes
+
+# Advanced: additional raw args (strings) that will be appended to vLLM
+# Useful when a new vLLM flag appears and you don’t want to edit the script.
+extra_args: []
