@@ -38,7 +38,7 @@ profiles:
       # 2. Large context window will reduce the throughput that the model will be able to sustain
       # GPT's context window is 131072 tokens, so we set it to a bit higher value
       # to accommodate for some extra tokens to get started with
-      max_model_len: 8192
+      max_model_len: 131072
       # This is the number of GPUs to shard the model across. This is an L-40s machine, which means that there
       # is only one GPU available
       tensor_parallel_size: 1
@@ -47,7 +47,7 @@ profiles:
       # weights, the KV cache and the runtime workspaces/activations.
       gpu_memory_utilization: 0.92
       # these are the batching controls
-      # This is the upper bound of the number of sequences that can be processed in the 
+      # This is the upper bound of the nnumber of sequences that can be processed in the 
       # scheduler for vLLM at once
       # In this, higher the max num seqs, more the throughput but this can raise the latency and memory use
       max_num_seqs: 256
@@ -68,8 +68,23 @@ profiles:
       async_scheduling: true
       # Enable tool/function calling support
       enable_auto_tool_choice: true
-      tool_call_parser: hermes
+      tool_call_parser: openai
 
 # Advanced: additional raw args (strings) that will be appended to vLLM
-# Useful when a new vLLM flag appears and you don’t want to edit the script.
+# Useful when a new vLLM flag appears and you don't want to edit the script.
 extra_args: []
+
+# Benchmarking configuration
+benchmarking:
+  # Path to the dataset file (parquet or csv)
+  dataset_path: "benchmark_deep_agents/data/browsecomp_longcontext.parquet"
+  # Number of samples to run (set to -1 for all samples)
+  num_samples: 5
+  # Output directory for results
+  output_dir: "benchmark_deep_agents/results"
+  # Output filename (will be timestamped)
+  output_filename: "benchmark_results"
+  # Columns mapping from dataset
+  question_column: "problem"
+  reference_column: "urls"
+  ground_truth_column: "answer"

@@ -8,18 +8,7 @@
 """
 Example curl commands (after starting the server):
   
-curl -s http://127.0.0.1:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-local-demo" \
-  -d '{
-    "model": "openai/gpt-oss-20b",
-    "messages": [
-      {"role": "system", "content": "You are an assistant that helps in providing in detailed answers. Do not reason too much and be concise."},
-      {"role": "user", "content": "Give me 3 facts about the L40S GPU."}
-    ],
-    "max_tokens": 2048,
-    "temperature": 0.1
-  }' | jq .
+no
 """
 
 import argparse
