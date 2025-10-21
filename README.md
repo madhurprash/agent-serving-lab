@@ -2,6 +2,8 @@
 
 This repository contains code for deploying and testing deep research agents using vLLM and LangGraph.
 
+BLOG: https://medium.com/@madhur.prashant7/efficient-llm-agent-serving-with-vllm-a-deep-dive-into-research-agent-benchmarking-3c07c563228a
+
 ## Table of Contents
 - [Setup](#setup)
 - [Loading BrowseComp Dataset](#loading-browsecomp-dataset)
@@ -140,7 +142,7 @@ print(final_message)
 if "Final Answer:" in final_message:
     print("\n Response follows the required format!")
 else:
-    print("\n  Response does not follow the required format")
+    print("\nÂ  Response does not follow the required format")
 ```
 
 Run the test:
